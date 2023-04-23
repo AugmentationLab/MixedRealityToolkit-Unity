@@ -5,9 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/MRTK/Examples/Demos/HandTracking/Scenes/HandInteractionExamples.unity
     guid: 3dd4a396b5225f8469b9a1eb608bfa57
+  - enabled: 1
+    path: Assets/JARVIS/MVP.unity
+    guid: 8355d13a95b342d44b16e78752a32a93
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: df272d4e79a849b43882cbcab0e7d681,
       type: 2}
