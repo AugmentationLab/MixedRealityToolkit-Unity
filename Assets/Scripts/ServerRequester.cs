@@ -13,7 +13,7 @@ public class ServerRequester : MonoBehaviour
     public Debugger debugger;
     public TMP_Text responseText;
     public TMP_Text inputText;
-    public byte[] imageBuffer;
+    // public byte[] imageBuffer;
 
     // FUNCTION RequestCommand takes in user input, sends it with current object references to the server, and displays the responses
     public void RequestCommand() {
@@ -21,11 +21,9 @@ public class ServerRequester : MonoBehaviour
         debug("inputText");
         debug(inputText.text);
 
-        // string image64 = Convert.ToBase64String(imageBuffer);
-        // debugger.Write("image64" + image64);
         StartCoroutine(GetResponse(new Dictionary<string, object> {
-            {"userInput", inputText.text},
-            {"imageData", imageBuffer}
+            {"userInput", inputText.text}
+            // {"imageData", imageBuffer}
         },
         "https://jarvis.loca.lt/getResponse",
         OnResponse));
@@ -48,17 +46,7 @@ public class ServerRequester : MonoBehaviour
         WWWForm requestData = new WWWForm();
         foreach(var item in inputData)
         {
-            // Add the input text and the image byte array to the requestData
-            if (item.Key == "userInput") {
-                requestData.AddField(item.Key, (string)item.Value);
-            } else if (item.Key == "imageData") {
-                requestData.AddBinaryData(item.Key, (byte[])item.Value, "image/jpeg");
-                // string imageBase64 = Convert.ToBase64String((byte[])item.Value);
-                // requestData.AddField(item.Key, imageBase64);
-                // byte[] imageBytes = Convert.FromBase64String(item.Value);
-                // requestData.AddBinaryData(item.Key, imageBytes);
-                // requestData.AddBinaryData(item.Key, (byte[])item.Value);
-            }
+            requestData.AddField(item.Key, (string)item.Value);
         }
 
         using (UnityWebRequest www = UnityWebRequest.Post(requestURL, requestData))
@@ -79,6 +67,7 @@ public class ServerRequester : MonoBehaviour
                 debug("NETWORKING - Response: " + serverResponse);
                 debugger.Write("NETWORKING - Response: " + serverResponse);
                 responseText.text = serverResponse;
+                // TODO: implement TTS
             }
         }
     }

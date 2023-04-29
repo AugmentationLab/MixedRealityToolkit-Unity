@@ -2,6 +2,10 @@ using UnityEngine;
 using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine.Networking;
+using Newtonsoft.Json;
+using System;
+using System.Text;
 
 public class TakePhoto : MonoBehaviour {
 
@@ -63,9 +67,14 @@ public class TakePhoto : MonoBehaviour {
 
             byte[] imageBuffer = imageBufferList.ToArray();
 
-            // // Send the byte array in a web request
-            // StartCoroutine(SendPhoto(imageBuffer));
-            serverRequester.imageBuffer = imageBuffer;
+            if (imageBuffer == null || imageBuffer.Length == 0) {
+                debugger.Write("Image buffer is null or empty!");
+                return;
+            }
+
+            // Send the byte array in a web request
+            StartCoroutine(SendPhoto(imageBuffer));
+            // serverRequester.imageBuffer = imageBuffer;
             debugger.Write("Saved image to global imageBuffer");
         }
         else
@@ -74,26 +83,34 @@ public class TakePhoto : MonoBehaviour {
         }
     }
 
-    // IEnumerator SendPhoto(byte[] imageBuffer)
-    // {
-    //     // Create a UnityWebRequest to send the byte array in a POST request
-    //     UnityWebRequest www = new UnityWebRequest("https://example.com/api/photos", "POST");
-    //     www.uploadHandler = new UploadHandlerRaw(imageBuffer);
-    //     www.downloadHandler = new DownloadHandlerBuffer();
-    //     www.SetRequestHeader("Content-Type", "image/jpeg");
+    IEnumerator SendPhoto(byte[] imageBuffer)
+    {
+        // Create a new WWWForm
+        WWWForm form = new WWWForm();
 
-    //     yield return www.SendWebRequest();
+        // Add the image buffer to the form
+        form.AddBinaryData("image_data", imageBuffer);
 
-    //     if (www.result != UnityWebRequest.Result.Success)
-    //     {
-    //         Debug.LogError("Failed to send photo: " + www.error);
-    //     }
-    //     else
-    //     {
-    //         Debug.Log("Photo sent successfully!");
-    //     }
-    // }
+        // Add the camera dimensions to the form
+        form.AddField("width", cameraResolution.width);
+        form.AddField("height", cameraResolution.height);
 
+        // Create a new UnityWebRequest
+        UnityWebRequest request = UnityWebRequest.Post("https://jarvis.loca.lt/saveImage", form);
+
+        // Send the request
+        yield return request.SendWebRequest();
+
+        // Check for errors
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            debugger.Write("Error sending image: " + request.error);
+        }
+        else
+        {
+            debugger.Write("Image sent successfully!");
+        }
+    }
 
     void OnStoppedPhotoMode(UnityEngine.Windows.WebCam.PhotoCapture.PhotoCaptureResult result) {
         // Shutdown the photo capture resource
